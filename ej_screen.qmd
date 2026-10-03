@@ -1,3 +1,19 @@
+---
+title: Homework 1
+author: Erin Yang
+format: pdf
+---
+
+- introduce county, basically manhattan. 
+- people of color in certain neighborhoods, also overlaps w low income
+- introduce diesel particulate matter - pg 16 on pdf
+- describe health effects
+- analysis: if u compare the two maps the red parts are like in teh same parts of the county
+- propose some explanations for why there is so much overlap
+- list equity issues with said overlap
+- restrictions: diesel pm was actually calculated at the census tract level, not block
+
+
 
 ```{r}
 library(tidyverse)
@@ -9,23 +25,40 @@ library(tmap)
 ejscreen <- sf::st_read(here::here("data", "ejscreen","EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb")) 
 
 # filter to a state you are interested in
-california <- ejscreen %>%
-  dplyr::filter(ST_ABBREV == "CA") 
+state <- ejscreen %>%
+  dplyr::filter(ST_ABBREV == "NY") 
 
 # filter to a county you are interested in
-santa_barbara <- ejscreen %>%
-  dplyr::filter(CNTY_NAME %in% c("Santa Barbara County"))
+county <- ejscreen %>%
+  dplyr::filter(CNTY_NAME %in% c("New York County"))
 
 # find the average values for all variables within counties
-california_counties <- aggregate(california, by = list(california$CNTY_NAME), FUN = mean)
+#state_by_county <- aggregate(state, by = list(county$CNTY_NAME), FUN = mean)
 ```
 
 
 ```{r}
-tm_shape(santa_barbara) +
+tm_shape(county) +
     tm_polygons(
-        fill = 'OZONE',
-        fill.scale = tm_scale(values = c('red', 'green')),
-        fill.legend = tm_legend(title = 'Ozone (ppm idk)')
-    )
+        fill = 'PEOPCOLORPCT',
+        fill.scale = tm_scale(values = c('green', 'red')),
+        fill.legend = tm_legend(title = 'Percentage People of Color'),
+        fill_alpha = 0.6
+    ) +
+    tm_scalebar() +
+    tm_title('Percentage People of Color by Census Block in New York County', size = 0.5)
 ```
+
+
+```{r}
+tm_shape(county) +
+    tm_polygons(
+        fill = 'DSLPM',
+        fill.scale = tm_scale(values = c('green', 'red')),
+        fill.legend = tm_legend(title = 'Percentile Diesel Particulate Matter (μg/m3)'),
+        fill_alpha = 0.6
+    ) +
+    tm_scalebar() +
+    tm_title('Percentile Diesel Particulate Matter by Census Block in New York County', size = 0.5)
+```
+
