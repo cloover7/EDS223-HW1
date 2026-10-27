@@ -1,19 +1,26 @@
 ---
-title: Homework 1
+title: EDS 223 - Homework 1
 author: Erin Yang
 format: pdf
+execute: 
+  warning: false
 ---
 
-- introduce county, basically manhattan. 
-- people of color in certain neighborhoods, also overlaps w low income
-- introduce diesel particulate matter - pg 16 on pdf
-- describe health effects
-- analysis: if u compare the two maps the red parts are like in teh same parts of the county
-- propose some explanations for why there is so much overlap
-- list equity issues with said overlap
-- restrictions: diesel pm was actually calculated at the census tract level, not block
+# Revision Memo
 
+I added more analysis in the last paragraph in which I compare the two maps I made. I also added graticules and a compass to the maps.
 
+# Assignment
+
+In this assignment, we explore environmental injustices via the EPA's EJScreen tool. This tool compiles data for many environmental and socioeconomic metrics to measure environmental and health inequities. Unfortunately it has currently been taken down from the US EPA website, but a functional unofficial version exists (linked below).
+
+- [Data Source](https://drive.google.com/file/d/1nG6Nj1bXfzQFOVMO8Km3eNy4SWu1YcIQ/view)
+- [Unofficial EJScreen](https://pedp-ejscreen.azurewebsites.net/)
+- [EDS 223 Assigment](https://eds-223-geospatial.github.io/assignments/HW1.html)
+
+I decided to focus my analysis on New York County, otherwise known as Manhattan. Manhattan has many distinct neighborhoods that may provide insight into environmental equity trends.
+
+# Load Packages and Data
 
 ```{r}
 library(tidyverse)
@@ -32,33 +39,46 @@ state <- ejscreen %>%
 county <- ejscreen %>%
   dplyr::filter(CNTY_NAME %in% c("New York County"))
 
-# find the average values for all variables within counties
-#state_by_county <- aggregate(state, by = list(county$CNTY_NAME), FUN = mean)
 ```
 
+Now that the data is filtered to only include data relevant to Manhattan, we can plot it!
+
+# Map 1: Proportion of People of Color
 
 ```{r}
+#| fig-width: 10
+#| fig-height: 7
 tm_shape(county) +
+tm_graticules() +
     tm_polygons(
         fill = 'PEOPCOLORPCT',
         fill.scale = tm_scale(values = c('green', 'red')),
-        fill.legend = tm_legend(title = 'Percentage People of Color'),
-        fill_alpha = 0.6
+        fill.legend = tm_legend(title = 'Percentage People of Color')
     ) +
     tm_scalebar() +
-    tm_title('Percentage People of Color by Census Block in New York County', size = 0.5)
+    tm_compass(type = "arrow", position = c("left", "bottom")) +
+    tm_layout(title = 'Percentage People of Color by Census Block in New York County', text.size = 10, asp = 0, inner.margins = 0.2)
 ```
 
+In this first plot, we see that people of color (POC) are concentrated in certain regions of Manhattan and are not evenly distributed. There seem to be particularly high concentrations of POC (80%+) in Harlem, Chinatown, and Lower East Side. Manhattan also seems to have very clear racial divides, there are not many areas with medium levels of POC residents. Race may be a distinguishing factor of Manhattan's neighborhoods.
+
+# Map 2: Diesel Particulate Matter
 
 ```{r}
+#| fig-width: 10
+#| fig-height: 7
 tm_shape(county) +
+tm_graticules() +
     tm_polygons(
         fill = 'DSLPM',
         fill.scale = tm_scale(values = c('green', 'red')),
-        fill.legend = tm_legend(title = 'Percentile Diesel Particulate Matter (μg/m3)'),
-        fill_alpha = 0.6
+        fill.legend = tm_legend(title = 'Percentile Diesel Particulate Matter (μg/m3)')
     ) +
     tm_scalebar() +
-    tm_title('Percentile Diesel Particulate Matter by Census Block in New York County', size = 0.5)
+    tm_compass(type = "arrow", position = c("left", "bottom")) +
+    tm_layout(title = 'Diesel Particulate Matter by Census Block in New York County', text.size = 10, asp = 0, inner.margins = 0.2)
 ```
+
+The second map shows the distribution of diesel particulate matter (DPM) concentrations in Manhattan. One caveat in this data is that DPM was measured at the census tract level, not the census block level so the granularity of this data is not as fine as the POC data. However, we still see similar general trends. The highest concentrations of DPM have a lot of spatial overlap with the areas with high POC density. This is a testament to how racial injustices are even prevalent in the environment. There are clearly "worse" parts of the city which are more unfit/unhealthy to live in and these are typically occupied by higher proportions of POC. It is also important to note that all of Manhattan has relatively high DPM concentrations compared to the rest of the country, perhaps due to the high vehicle density/traffic. 
+
 
